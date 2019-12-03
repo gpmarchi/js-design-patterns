@@ -1,4 +1,4 @@
-const catPituresAmount = 6;
+const catPicturesAmount = 6;
 
 const makeCounter = () => {
   let counter = 0;
@@ -27,9 +27,9 @@ const createImageElement = fileName => {
   return img;
 };
 
-for (let index = 0; index < catPituresAmount; index++) {
-  let currentFileName = `cat-${index + 1}.jpg`;
-  let catCounter = makeCounter();
+for (let index = 0; index < catPicturesAmount; index++) {
+  const currentFileName = `cat-${index + 1}.jpg`;
+  const catCounter = makeCounter();
 
   const catThumbImage = createImageElement(currentFileName);
   catThumbImage.addEventListener("click", () => {
