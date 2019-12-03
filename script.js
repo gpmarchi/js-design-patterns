@@ -1,58 +1,121 @@
-const catPicturesAmount = 6;
-
-const makeCounter = () => {
-  let counter = 0;
-
-  function add(value) {
-    counter += value;
-  }
+const Cat = () => {
+  let name = "";
+  let imagePath = "";
+  let clickCounter = 0;
 
   return {
-    incrementBy: value => {
-      add(value);
+    getName: () => {
+      return name;
     },
-    counterValue: () => {
-      return counter;
+    setName: catName => {
+      name = catName;
+    },
+    getImagePath: () => {
+      return imagePath;
+    },
+    setImagePath: path => {
+      imagePath = path;
+    },
+    getClickCounter: () => {
+      return clickCounter;
+    },
+    setClickCounter: catClickCounter => {
+      clickCounter = catClickCounter;
     }
   };
 };
 
-const navbar = document.querySelector("div.thumbnail-display");
-const imageDisplay = document.querySelector("div.cat-image-display");
+const CatDAO = numberOfCats => {
+  let cats = [];
 
-const createImageElement = fileName => {
-  const img = document.createElement("img");
-  img.src = `./assets/${fileName}`;
-  img.className = "cat-clicker";
-  return img;
+  return {
+    loadCats: () => {
+      for (let index = 1; index <= numberOfCats; index++) {
+        const newCat = Cat();
+        newCat.setName(`Cat ${index}`);
+        newCat.setImagePath(`./assets/cat-${index}.jpg`);
+        cats.push(newCat);
+      }
+      return cats;
+    },
+    updateCatClickCounter: name => {
+      cats.map(cat => {
+        let currentCounter = cat.getClickCounter();
+        if (cat.getName() === name) {
+          currentCounter += 1;
+          cat.setClickCounter(currentCounter);
+        }
+      });
+    }
+  };
 };
 
-for (let index = 0; index < catPicturesAmount; index++) {
-  const currentFileName = `cat-${index + 1}.jpg`;
-  const catCounter = makeCounter();
+const CatController = () => {
+  const catDAO = CatDAO(6);
+  const catView = CatView();
 
-  const catThumbImage = createImageElement(currentFileName);
-  catThumbImage.addEventListener("click", () => {
-    imageDisplay.innerHTML = "";
-    const catName = document.createElement("p");
-    catName.innerHTML = `Cat ${index + 1}`;
+  return {
+    getCats: () => {
+      return catDAO.loadCats();
+    },
+    incrementCatClickCounter: catName => {
+      catDAO.updateCatClickCounter(catName);
+    },
+    init: () => {
+      catView.init();
+    }
+  };
+};
 
-    const catImage = createImageElement(currentFileName);
-    catImage.addEventListener("click", () => {
-      catCounter.incrementBy(1);
-      const counterDisplay = document.querySelector(
+const CatView = () => {
+  const createImageElement = imagePath => {
+    const img = document.createElement("img");
+    img.src = imagePath;
+    img.className = "cat-clicker";
+    return img;
+  };
+
+  const createImageDisplay = cat => {
+    const catDisplay = document.querySelector("div.cat-image-display");
+    catDisplay.innerHTML = "";
+
+    const catDisplayName = document.createElement("p");
+    catDisplayName.innerHTML = cat.getName();
+
+    const catDisplayImage = createImageElement(cat.getImagePath());
+    catDisplayImage.addEventListener("click", () => {
+      catController.incrementCatClickCounter(cat.getName());
+      const clickCounterDisplay = document.querySelector(
         "div.cat-image-display span"
       );
-      counterDisplay.innerHTML = `Number of clicks: ${catCounter.counterValue()}`;
+      clickCounterDisplay.innerHTML = `Number of clicks: ${cat.getClickCounter()}`;
     });
 
-    const span = document.createElement("span");
-    span.innerHTML = `Number of clicks: ${catCounter.counterValue()}`;
+    const clickCounterDisplay = document.createElement("span");
+    clickCounterDisplay.innerHTML = `Number of clicks: ${cat.getClickCounter()}`;
 
-    imageDisplay.appendChild(catName);
-    imageDisplay.appendChild(catImage);
-    imageDisplay.appendChild(span);
-  });
+    catDisplay.appendChild(catDisplayName);
+    catDisplay.appendChild(catDisplayImage);
+    catDisplay.appendChild(clickCounterDisplay);
+  };
 
-  navbar.appendChild(catThumbImage);
-}
+  return {
+    init: () => {
+      const catNavigationBar = document.querySelector("div.thumbnail-display");
+      const cats = catController.getCats();
+
+      cats.forEach(cat => {
+        const catThumbImage = createImageElement(cat.getImagePath());
+
+        catThumbImage.addEventListener("click", () => {
+          createImageDisplay(cat);
+        });
+
+        catNavigationBar.appendChild(catThumbImage);
+      });
+    }
+  };
+};
+
+const catController = CatController();
+catController.init();
