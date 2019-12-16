@@ -1,3 +1,5 @@
+// RESOURCE --------------------------------------------------------------------
+
 const Cat = () => {
   let name = "";
   let imagePath = "";
@@ -25,7 +27,9 @@ const Cat = () => {
   };
 };
 
-const CatDAO = numberOfCats => {
+// MODEL -----------------------------------------------------------------------
+
+const CatModel = numberOfCats => {
   let cats = [];
 
   return {
@@ -38,69 +42,47 @@ const CatDAO = numberOfCats => {
       }
       return cats;
     },
-    updateCatClickCounter: name => {
+    incrementCatClickCounter: name => {
       cats.map(cat => {
-        let currentCounter = cat.getClickCounter();
         if (cat.getName() === name) {
-          currentCounter += 1;
-          cat.setClickCounter(currentCounter);
+          const currentCounter = cat.getClickCounter();
+          cat.setClickCounter(currentCounter + 1);
         }
       });
     }
   };
 };
 
+// CONTROLLER ------------------------------------------------------------------
+
 const CatController = () => {
-  const catDAO = CatDAO(6);
-  const catView = CatView();
+  const catModel = CatModel(6);
 
   return {
     getCats: () => {
-      return catDAO.loadCats();
+      return catModel.loadCats();
     },
     incrementCatClickCounter: catName => {
-      catDAO.updateCatClickCounter(catName);
+      catModel.incrementCatClickCounter(catName);
     },
     init: () => {
-      catView.init();
+      CatThumbnailView().createThumbnailDisplayList();
     }
   };
 };
 
-const CatView = () => {
-  const createImageElement = imagePath => {
-    const img = document.createElement("img");
-    img.src = imagePath;
-    img.className = "cat-clicker";
-    return img;
-  };
+// VIEW ------------------------------------------------------------------------
 
-  const createImageDisplay = cat => {
-    const catDisplay = document.querySelector("div.cat-image-display");
-    catDisplay.innerHTML = "";
+const createImageElement = imagePath => {
+  const img = document.createElement("img");
+  img.src = imagePath;
+  img.className = "cat-clicker";
+  return img;
+};
 
-    const catDisplayName = document.createElement("p");
-    catDisplayName.innerHTML = cat.getName();
-
-    const catDisplayImage = createImageElement(cat.getImagePath());
-    catDisplayImage.addEventListener("click", () => {
-      catController.incrementCatClickCounter(cat.getName());
-      const clickCounterDisplay = document.querySelector(
-        "div.cat-image-display span"
-      );
-      clickCounterDisplay.innerHTML = `Number of clicks: ${cat.getClickCounter()}`;
-    });
-
-    const clickCounterDisplay = document.createElement("span");
-    clickCounterDisplay.innerHTML = `Number of clicks: ${cat.getClickCounter()}`;
-
-    catDisplay.appendChild(catDisplayName);
-    catDisplay.appendChild(catDisplayImage);
-    catDisplay.appendChild(clickCounterDisplay);
-  };
-
+const CatThumbnailView = () => {
   return {
-    init: () => {
+    createThumbnailDisplayList: () => {
       const catNavigationBar = document.querySelector("div.thumbnail-display");
       const cats = catController.getCats();
 
@@ -108,11 +90,39 @@ const CatView = () => {
         const catThumbImage = createImageElement(cat.getImagePath());
 
         catThumbImage.addEventListener("click", () => {
-          createImageDisplay(cat);
+          CatView().createMainImageDisplay(cat);
         });
 
         catNavigationBar.appendChild(catThumbImage);
       });
+    }
+  };
+};
+
+const CatView = () => {
+  return {
+    createMainImageDisplay: cat => {
+      const catDisplay = document.querySelector("div.cat-image-display");
+      catDisplay.innerHTML = "";
+
+      const catDisplayName = document.createElement("p");
+      catDisplayName.innerHTML = cat.getName();
+
+      const catDisplayImage = createImageElement(cat.getImagePath());
+      catDisplayImage.addEventListener("click", () => {
+        catController.incrementCatClickCounter(cat.getName());
+        const clickCounterDisplay = document.querySelector(
+          "div.cat-image-display span"
+        );
+        clickCounterDisplay.innerHTML = `Number of clicks: ${cat.getClickCounter()}`;
+      });
+
+      const clickCounterDisplay = document.createElement("span");
+      clickCounterDisplay.innerHTML = `Number of clicks: ${cat.getClickCounter()}`;
+
+      catDisplay.appendChild(catDisplayName);
+      catDisplay.appendChild(catDisplayImage);
+      catDisplay.appendChild(clickCounterDisplay);
     }
   };
 };
