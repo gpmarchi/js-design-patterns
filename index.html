@@ -9,10 +9,24 @@
   </head>
   <body>
     <div class="container">
-      <div class="navbar">
+      <aside class="navbar">
         <div class="thumbnail-display"></div>
-      </div>
-      <div class="cat-image-display"></div>
+      </aside>
+      <main class="cat-image-display"></main>
+      <footer class="form-container">
+        <form>
+          <label for="cat-name">Cat name</label>
+          <input id="cat-name" type="text" />
+          <label for="cat-image-url">Cat image url</label>
+          <input id="cat-image-url" type="text" />
+          <label for="cat-clicks">Cat # of clicks</label>
+          <input id="cat-clicks" type="text" />
+          <div class="edit-form-actions">
+            <button id="cancel">Cancel</button>
+            <button id="save" type="submit">Save</button>
+          </div>
+        </form>
+      </footer>
     </div>
   </body>
   <script type="text/javascript" src="./script.js"></script>
